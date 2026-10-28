@@ -22,8 +22,8 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health").permitAll()
 
                 // Consultar funcionários: ADMIN ou USER
-                .requestMatchers(HttpMethod.GET, "/api/funcionarios/**")
-                    .hasAnyRole("ADMIN", "USER")
+                .requestMatchers(HttpMethod.GET, "/api/funcionarios")
+                    .hasRole("ADMIN")
 
                 // Criar funcionários: apenas ADMIN
                 .requestMatchers(HttpMethod.POST, "/api/funcionarios")

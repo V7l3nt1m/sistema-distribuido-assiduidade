@@ -1,0 +1,83 @@
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">A</div>
+      <div>
+        <h2>Assiduidade</h2>
+        <span>Sistema de Gestão</span>
+      </div>
+    </div>
+
+    <div class="menu-label">MENU PRINCIPAL</div>
+
+    <div class="menu-item active">
+      <span>▦</span>
+      Dashboard
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar">
+        {{ nomeUtilizador.charAt(0) }}
+      </div>
+
+      <div class="user-info">
+        <strong>{{ nomeUtilizador }}</strong>
+        <span>{{ role }}</span>
+      </div>
+
+      <button
+        class="logout-button"
+        (click)="terminarSessao()"
+        title="Terminar sessão">
+        ↪
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Bem-vindo ao sistema de gestão.</p>
+      </div>
+
+      <div class="topbar-user">
+        <div class="avatar">
+          {{ nomeUtilizador.charAt(0) }}
+        </div>
+
+        <div>
+          <strong>{{ nomeUtilizador }}</strong>
+          <span>{{ role }}</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="dashboard-body">
+
+      <app-admin-component
+        *ngIf="role === 'ADMIN'">
+      </app-admin-component>
+
+      <app-rh-component
+        *ngIf="role === 'RH'">
+      </app-rh-component>
+
+      <app-funcionario-component
+        *ngIf="role === 'USER'">
+      </app-funcionario-component>
+
+      <div
+        class="access-error"
+        *ngIf="role !== 'ADMIN' && role !== 'RH' && role !== 'USER'">
+        <h2>Perfil não reconhecido</h2>
+        <p>Não foi possível identificar o teu perfil de acesso.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

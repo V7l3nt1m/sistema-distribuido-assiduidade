@@ -1,0 +1,53 @@
+.error-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f8fafc;
+  font-family: Arial, sans-serif;
+}
+
+.error-content {
+  max-width: 480px;
+  text-align: center;
+}
+
+.error-code {
+  display: block;
+  color: #2563eb;
+  font-size: 100px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -5px;
+}
+
+h1 {
+  margin: 24px 0 12px;
+  color: #0f172a;
+  font-size: 28px;
+}
+
+p {
+  margin-bottom: 28px;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+a {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-decoration: none;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
