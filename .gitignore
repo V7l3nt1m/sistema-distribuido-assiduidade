@@ -1,0 +1,49 @@
+# Java
+*.class
+*.log
+
+# Maven
+target/
+**/target/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Angular / Node.js
+node_modules/
+dist/
+.angular/
+coverage/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Local databases and data
+mongodb-data/
+kafka-data/
+
+# Credentials and private keys
+*.pem
+*.key
