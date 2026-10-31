@@ -38,8 +38,8 @@ public class SecurityConfig {
                     .hasRole("ADMIN")
 
                 .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults())
+            ) 
+            .oauth2ResourceServer(oath2 -> oath2.jwt(Customizer.withDefaults())) //assim ele vai procurar o cabeçalho autorization bearer   
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
