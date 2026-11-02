@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ao.ucan.authservice.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ao.ucan.authservice.model.Usuario;
+import ao.ucan.authservice.cliente.FuncionarioClient;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -27,12 +28,14 @@ public class AuthService
     private final UsuarioRepository usuarioRepository; //permie consultar users no banco de dados
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
+    private final FuncionarioClient funcClient;
     
-    public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,JwtEncoder jwtEncoder)
+    public AuthService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder,JwtEncoder jwtEncoder, FuncionarioClient funcClient)
     {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtEncoder = jwtEncoder;
+        this.funcClient = funcClient;
     }
     
    
@@ -46,6 +49,11 @@ public class AuthService
         }
         
         Usuario user = usuarioOptional.get();
+        
+        if (!"CONCLUIDO".equals(user.getEstadoRegisto())) 
+        {
+        throw new RuntimeException("Registo profissional pendente");
+        }
         
         if (!user.isAtivo()) 
         {
@@ -90,11 +98,8 @@ public class AuthService
         return gerarToken(usuario);
     }
     
-    public Usuario registarUsuario(
-        String username,
-        String password,
-        String role,
-        String funcionarioId) {
+        public Usuario registarUsuario(String username,String password,
+            String role) {
 
         // Verificar se o username já existe
         if (usuarioRepository.existsByUsername(username)) {
@@ -116,8 +121,13 @@ public class AuthService
         novoUsuario.setUsername(username);
         novoUsuario.setPassword(passwordEncoder.encode(password));
         novoUsuario.setRole(role);
-        novoUsuario.setFuncionarioId(funcionarioId);
-        novoUsuario.setAtivo(true);
+
+        // A associação ao funcionário será feita posteriormente pelo RH
+        novoUsuario.setFuncionarioId(null);
+
+        // A conta fica pendente e desactivada
+        novoUsuario.setEstadoRegisto("PENDENTE");
+        novoUsuario.setAtivo(false);
 
         // Guardar no MongoDB
         return usuarioRepository.save(novoUsuario);
@@ -151,11 +161,64 @@ public class AuthService
     }
 
     Usuario usuario = usuarioOptional.get();
+    if (!"CONCLUIDO".equals(usuario.getEstadoRegisto())
+            || usuario.getFuncionarioId() == null) {
+        throw new RuntimeException(
+                "Não é possível ativar: registo profissional pendente"
+        );
+    }
     usuario.setAtivo(true);
 
     usuarioRepository.save(usuario);
 
     return true;
 }
+    
+    public boolean associarFuncionario(
+            String usuarioId,
+            String funcionarioId,
+            String token) {
+
+        Optional<Usuario> usuarioOptional =
+                usuarioRepository.findById(usuarioId);
+
+        if (usuarioOptional.isEmpty()) {
+            return false;
+        }
+
+        Usuario usuario = usuarioOptional.get();
+
+        if (!"PENDENTE".equals(usuario.getEstadoRegisto())) {
+            throw new RuntimeException(
+                    "Esta conta já possui um registo concluído"
+            );
+        }
+
+        if (funcionarioId == null || funcionarioId.isBlank()) {
+            throw new RuntimeException("ID do funcionário inválido");
+        }
+
+        // Confirmar se o funcionário existe no outro microserviço
+        boolean existe = funcClient.funcionarioExiste(
+                funcionarioId,
+                token
+        );
+
+        if (!existe) {
+            throw new RuntimeException(
+                    "Funcionário não encontrado"
+            );
+        }
+
+        // Associar a conta ao funcionário
+        usuario.setFuncionarioId(funcionarioId);
+        usuario.setAtivo(true);
+        usuario.setEstadoRegisto("CONCLUIDO");
+
+        usuarioRepository.save(usuario);
+
+        return true;
+    }
+
     
 }

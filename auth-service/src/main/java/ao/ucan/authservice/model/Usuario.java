@@ -20,11 +20,15 @@ public class Usuario
     private String password;
     private String role;
     private String funcionarioId;
+    private String estadoRegisto;
     private boolean ativo;
 
     public Usuario() 
     {
+        this.estadoRegisto = "PENDENTE";
+        this.ativo = false;
     }
+    
 
     /**
      * @return the id
@@ -108,6 +112,20 @@ public class Usuario
      */
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+
+    /**
+     * @return the estadoRegisto
+     */
+    public String getEstadoRegisto() {
+        return estadoRegisto;
+    }
+
+    /**
+     * @param estadoRegisto the estadoRegisto to set
+     */
+    public void setEstadoRegisto(String estadoRegisto) {
+        this.estadoRegisto = estadoRegisto;
     }
     
     

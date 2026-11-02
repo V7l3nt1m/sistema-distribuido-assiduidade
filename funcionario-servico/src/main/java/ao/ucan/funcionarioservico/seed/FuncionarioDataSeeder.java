@@ -35,7 +35,8 @@ public class FuncionarioDataSeeder {
                 "Técnico de Suporte",
                 "Administrador de Sistemas",
                 "Analista de Segurança",
-                "Gestor de Projetos"
+                "Gestor de Projetos",
+                "RH"
             };
 
             for (int i = 0; i < 20; i++) {
@@ -60,7 +61,13 @@ public class FuncionarioDataSeeder {
                     BigDecimal.valueOf(salario)
                 );
 
-                repository.save(funcionario);
+                Funcionario guardado = repository.save(funcionario);
+
+                System.out.println(
+                    "Funcionário criado: " +
+                    guardado.getNome() +
+                    " | ID: " + guardado.getId()
+                );
             }
 
             System.out.println(
@@ -68,4 +75,5 @@ public class FuncionarioDataSeeder {
             );
         };
     }
+
 }

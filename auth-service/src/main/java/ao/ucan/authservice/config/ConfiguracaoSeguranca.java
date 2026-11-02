@@ -6,7 +6,7 @@ package ao.ucan.authservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,21 +38,39 @@ public class ConfiguracaoSeguranca //classe para usar o algoritmo bcrypt e encri
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //usa sempre jwt em cada requisicao
-                .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/login").permitAll() //permiteall permite realizar login sem possuir token
-                    .requestMatchers("/actuator/health").permitAll()
-                    .requestMatchers("/api/auth/admin").hasRole("ADMIN")
-                    .requestMatchers("/api/auth/register").hasRole("ADMIN")
-                    .requestMatchers("/api/auth/users/**").hasRole("ADMIN")
-                    .anyRequest().authenticated() //exige autenticacao
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2
-    .jwt(jwt -> jwt
-        .jwtAuthenticationConverter(jwtAuthenticationConverter)
-    )
-); //permite ao spring validar os jwt
+        .csrf(csrf -> csrf.disable())
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+        .authorizeHttpRequests(auth -> auth
+
+            .requestMatchers("/api/auth/login").permitAll()
+            .requestMatchers("/actuator/health").permitAll()
+
+            // ADMIN apenas            
+            .requestMatchers(HttpMethod.POST, "/api/auth/register").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.GET, "/api/auth/users").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PATCH, "/api/auth/users/*/activate").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PATCH, "/api/auth/users/*/deactivate").hasRole("ADMIN")
+
+            // RH: apenas
+            .requestMatchers(HttpMethod.PATCH, "/api/auth/users/*/associarfunc").hasRole("RH")
+
+            // endpoint de teste
+            .requestMatchers("/api/auth/admin").hasRole("ADMIN")
+            .requestMatchers(
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**"
+            ).permitAll()
+
+            .anyRequest().authenticated()
+        )
+        .oauth2ResourceServer(oauth2 -> oauth2
+            .jwt(jwt -> jwt
+                .jwtAuthenticationConverter(jwtAuthenticationConverter)
+            )
+        ); //permite ao spring validar os jwt
         
         return http.build();
     }

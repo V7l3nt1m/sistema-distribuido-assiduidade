@@ -9,6 +9,8 @@ import ao.ucan.funcionarioservico.servico.FuncionarioServico;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;   
 
 import java.util.List;
 
@@ -43,12 +45,39 @@ public class FuncionarioController
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Funcionario> buscarPorId(@PathVariable String id)
-    {
+public ResponseEntity<Funcionario> buscarPorId(
+        @PathVariable String id,
+        Authentication authentication) {
+
+    JwtAuthenticationToken jwtAuth =
+            (JwtAuthenticationToken) authentication;
+
+    String role = jwtAuth.getToken().getClaimAsString("role");
+
+    String funcionarioId =
+            jwtAuth.getToken().getClaimAsString("funcionarioId");
+
+    // RH e FINANCEIRO podem consultar qualquer funcionário.
+    if ("RH".equals(role) || "FINANCEIRO".equals(role)) {
         return funcionarioServico.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // USER só pode consultar o próprio funcionário.
+    if ("USER".equals(role)) {
+
+        if (funcionarioId == null || !funcionarioId.equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return funcionarioServico.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+}
     
     @PutMapping("/{id}")
     public ResponseEntity<Funcionario> atualizar(@PathVariable String id,@RequestBody Funcionario funcionario)

@@ -1,4 +1,4 @@
-package ao.ucan.funcionarioservico;
+    package ao.ucan.funcionarioservico;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

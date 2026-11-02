@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package ao.ucan.authservice.controller;
+import ao.ucan.authservice.dto.AssociarFuncRequest;
 import ao.ucan.authservice.dto.LoginRequest;
 import ao.ucan.authservice.dto.LoginResposta;
 import ao.ucan.authservice.service.AuthService;
@@ -13,6 +14,7 @@ import ao.ucan.authservice.dto.RegistroUserRequest;
 import ao.ucan.authservice.model.Usuario;
 import ao.ucan.authservice.dto.UserResposta;
 import java.util.List;
+import org.springframework.http.HttpHeaders;
 /**
  *
  * @author pradopc
@@ -47,17 +49,17 @@ public class AuthController
     Usuario novoUsuario = authservice.registarUsuario(
             requisicao.getUsername(),
             requisicao.getPassword(),
-            requisicao.getRole(),
-            requisicao.getFuncionarioId()
+            requisicao.getRole()
     );
 
     UserResposta resposta = new UserResposta(
-            novoUsuario.getId(),
-            novoUsuario.getUsername(),
-            novoUsuario.getRole(),
-            novoUsuario.getFuncionarioId(),
-            novoUsuario.isAtivo()
-    );
+        novoUsuario.getId(),
+        novoUsuario.getUsername(),
+        novoUsuario.getRole(),
+        novoUsuario.getFuncionarioId(),
+        novoUsuario.isAtivo(),
+        novoUsuario.getEstadoRegisto()
+);
 
     return ResponseEntity.status(201).body(resposta);
 }
@@ -72,7 +74,8 @@ public class AuthController
                     usuario.getUsername(),
                     usuario.getRole(),
                     usuario.getFuncionarioId(),
-                    usuario.isAtivo()
+                    usuario.isAtivo(),
+                    usuario.getEstadoRegisto()
             ))
             .toList();
 
@@ -97,6 +100,19 @@ public class AuthController
         boolean ativado = authservice.ativarUsuario(id);
 
         if (!ativado) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+    
+    @PatchMapping("/users/{id}/associarfunc")
+    public ResponseEntity<Void> associarFunc(@PathVariable String id, @RequestBody AssociarFuncRequest requisicao, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) 
+    {
+
+        boolean associado = authservice.associarFuncionario(id, requisicao.getFuncionarioId(), token);
+
+        if (!associado) {
             return ResponseEntity.notFound().build();
         }
 
