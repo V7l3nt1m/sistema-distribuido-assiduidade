@@ -4,6 +4,8 @@ import { FuncionarioComponent } from '../funcionario-component/funcionario-compo
 import { AdminComponent } from '../admin-component/admin-component';
 import { RhComponent } from '../rh-component/rh-component';
 import { Router } from '@angular/router';
+import { TokenService } from '../../services/token.service';
+import { inject } from '@angular/core';
 
 @Component({
   
@@ -14,9 +16,22 @@ import { Router } from '@angular/router';
 })
 export class DashboardComponent {
 
-  // Dados temporários para desenvolver a interface.
-  nomeUtilizador = 'Valentim Prado';
-  role = 'ADMIN';
+  private tokenService = inject(TokenService);
+
+  username: string = '';
+  role: string = '';
+  funcionarioId: string = '';
+
+  ngOnInit(): void {
+    const dados = this.tokenService.obterDadosToken();
+
+  if (dados) {
+    this.username = dados.sub;
+    this.role = dados.role;
+    this.funcionarioId = dados.funcionarioId;
+  }
+  }
+
 
   constructor(private router: Router) {}
 

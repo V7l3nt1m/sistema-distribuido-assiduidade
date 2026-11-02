@@ -5,14 +5,15 @@
     <h1>Bem-vindo!</h1>
     <p>Entra na tua conta para continuar.</p>
 
-    <form>
+    <form (ngSubmit)="iniciarSessao()"> <!--vai executar a funcao iniciarSessao no component typescript-->
       <div class="form-group">
-        <label for="email">E-mail</label>
+        <label for="username">Username</label> <!--vai usar ngModel para passar os dados na funcao e tratar os dados-->
         <input
-          type="email"
-          id="email"
-          name="email"
-          placeholder="exemplo@empresa.com"
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="username" 
+          placeholder="Nome de usuario"
           required
         >
       </div>
@@ -23,6 +24,7 @@
           type="password"
           id="password"
           name="password"
+          [(ngModel)]="password"
           placeholder="Introduz a tua palavra-passe"
           required
         >
